@@ -8,6 +8,98 @@ enum WorkspaceMotion {
     static let feedback = Animation.easeOut(duration: 0.14)
 }
 
+struct TableFilterControl<Value: Hashable>: View {
+    @Binding var selection: Value
+    let options: [Value]
+    let defaultValue: Value
+    let title: (Value) -> String
+    let accessibilityName: String
+    let icon: String
+    let theme: WorkspaceTheme
+    var titleLimit: CGFloat? = nil
+    @ControlState private var showingOptions = false
+
+    var body: some View {
+        Button {
+            showingOptions.toggle()
+        } label: {
+            TableControlLabel(title: title(selection), icon: icon, active: selection != defaultValue,
+                              theme: theme, titleLimit: titleLimit)
+        }
+        .buttonStyle(WorkspaceButtonStyle(theme: theme))
+        .fixedSize()
+        .help(title(selection))
+        .accessibilityLabel(accessibilityName)
+        .accessibilityValue(title(selection))
+        .popover(isPresented: $showingOptions, arrowEdge: .bottom) {
+            ScrollView {
+                VStack(spacing: Space.xs) {
+                    ForEach(options, id: \.self) { option in
+                        Button {
+                            selection = option
+                            showingOptions = false
+                        } label: {
+                            HStack(spacing: Space.sm) {
+                                Image(systemName: "checkmark")
+                                    .opacity(option == selection ? 1 : 0)
+                                    .accessibilityHidden(true)
+                                Text(title(option))
+                                    .lineLimit(2)
+                                Spacer(minLength: 0)
+                            }
+                            .workspaceType(.navigation)
+                            .padding(.horizontal, Space.sm)
+                            .frame(minHeight: 28)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(WorkspaceButtonStyle(theme: theme))
+                        .accessibilityAddTraits(option == selection ? .isSelected : [])
+                    }
+                }
+                .padding(Space.xs)
+            }
+            .frame(width: 224, height: min(CGFloat(options.count) * 36 + Space.sm, 260))
+            .onExitCommand { showingOptions = false }
+        }
+    }
+}
+
+struct TableControlLabel: View {
+    let title: String
+    let icon: String
+    let active: Bool
+    let theme: WorkspaceTheme
+    var titleLimit: CGFloat? = nil
+
+    var body: some View {
+        HStack(spacing: Space.xs + 2) {
+            Image(systemName: icon)
+                .foregroundStyle(active ? theme.ink : theme.muted)
+                .accessibilityHidden(true)
+            Text(title)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(maxWidth: titleLimit, alignment: .leading)
+            Image(systemName: "chevron.down")
+                .imageScale(.small)
+                .foregroundStyle(theme.muted)
+                .accessibilityHidden(true)
+        }
+        .workspaceType(.navigation)
+        .foregroundStyle(theme.ink)
+        .padding(.horizontal, Space.sm)
+        .frame(minHeight: 28)
+        .background {
+            RoundedRectangle(cornerRadius: Corner.control)
+                .fill(active ? theme.ink.opacity(0.10) : theme.ink.opacity(0.04))
+                .overlay {
+                    RoundedRectangle(cornerRadius: Corner.control)
+                        .strokeBorder(active ? theme.fieldOutline : theme.line)
+                }
+        }
+    }
+}
+
 struct WorkspaceFieldSurface: View {
     let theme: WorkspaceTheme
     let focused: Bool

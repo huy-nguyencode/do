@@ -350,27 +350,16 @@ struct WorkspaceView: View {
                 if showSummary {
                     OverviewSummary(total: visible.count, groups: result.summary, theme: theme, navigate: changeView)
                 }
-                if !tasks.isEmpty {
-                    ViewThatFits(in: .horizontal) {
-                        HStack(spacing: Space.sm) {
-                            projectFilter
-                            statusMenu
-                            sortMenu
-                        }
-                        VStack(alignment: .trailing, spacing: Space.xs) {
-                            projectFilter
-                            HStack(spacing: Space.sm) {
-                                statusMenu
-                                sortMenu
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                }
             }
             .padding(.horizontal, Space.xl)
             .padding(.top, Space.xl)
             .padding(.bottom, Space.md)
+
+            if !tasks.isEmpty {
+                tableControls
+                    .padding(.horizontal, Space.xl)
+                    .padding(.bottom, Space.sm)
+            }
 
             if visible.isEmpty {
                 emptyState(hasFilter: !search.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !project.isEmpty || statusFilter != nil)
@@ -386,44 +375,42 @@ struct WorkspaceView: View {
         .accessibilityIdentifier("task-content")
     }
 
-    private var statusMenu: some View {
-        Menu {
-            Picker("Status", selection: $statusFilter) {
-                Text("All statuses").tag(nil as TaskStatus?)
-                ForEach(TaskStatus.allCases) { status in
-                    Text(status.rawValue).tag(Optional(status))
+    private var tableControls: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: Space.sm) {
+                projectFilter
+                statusMenu
+                sortMenu
+            }
+            VStack(alignment: .leading, spacing: Space.xs) {
+                projectFilter
+                HStack(spacing: Space.sm) {
+                    statusMenu
+                    sortMenu
                 }
             }
-        } label: {
-            Label(statusFilter?.rawValue ?? "All statuses", systemImage: "line.3.horizontal.decrease")
-                .workspaceType(.navigation)
         }
-        .menuStyle(.borderlessButton)
-        .fixedSize()
-        .accessibilityLabel("Filter by status")
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var statusMenu: some View {
+        TableFilterControl(selection: $statusFilter,
+                           options: [nil] + TaskStatus.allCases.map(Optional.some),
+                           defaultValue: nil, title: { $0?.rawValue ?? "All statuses" },
+                           accessibilityName: "Filter by status", icon: "checkmark.circle", theme: theme)
     }
 
     private var sortMenu: some View {
-        TaskSortControl(rules: sortRules, initialField: view == .milestones ? .key : .due)
+        TaskSortControl(rules: sortRules, initialField: view == .milestones ? .key : .due, theme: theme)
     }
 
     @ViewBuilder
     private var projectFilter: some View {
         if !projects.isEmpty {
-            Menu {
-                Picker("Course or project", selection: $project) {
-                    Text("All courses & projects").tag("")
-                    ForEach(projects, id: \.self) { Text($0).tag($0) }
-                }
-            } label: {
-                Label(project.isEmpty ? "All projects" : project, systemImage: "line.3.horizontal.decrease")
-                    .workspaceType(.navigation)
-                    .lineLimit(1)
-            }
-            .menuStyle(.borderlessButton)
-            .fixedSize(horizontal: true, vertical: false)
-            .frame(maxWidth: 155)
-            .help("Filter by course or project")
+            TableFilterControl(selection: $project, options: [""] + projects, defaultValue: "",
+                               title: { $0.isEmpty ? "All projects" : $0 },
+                               accessibilityName: "Filter by project", icon: "folder", theme: theme,
+                               titleLimit: 120)
         }
     }
 

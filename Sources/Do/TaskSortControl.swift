@@ -5,6 +5,7 @@ private typealias SortState<Value> = SwiftUI.State<Value>
 struct TaskSortControl: View {
     @Binding var rules: [TaskSortRule]
     let initialField: TaskSortField
+    let theme: WorkspaceTheme
     @SortState private var showingRules = false
 
     private var unusedFields: [TaskSortField] {
@@ -15,14 +16,10 @@ struct TaskSortControl: View {
         Button {
             showingRules.toggle()
         } label: {
-            HStack(spacing: Space.xs) {
-                Label(rules.isEmpty ? "Sort" : rules.count == 1 ? "1 sort" : "\(rules.count) sorts",
-                      systemImage: "arrow.up.arrow.down")
-                Image(systemName: "chevron.down").imageScale(.small)
-            }
-            .workspaceType(.navigation)
+            TableControlLabel(title: rules.isEmpty ? "Sort" : rules.count == 1 ? "1 sort" : "\(rules.count) sorts",
+                              icon: "arrow.up.arrow.down", active: !rules.isEmpty, theme: theme)
         }
-        .buttonStyle(.borderless)
+        .buttonStyle(WorkspaceButtonStyle(theme: theme))
         .fixedSize()
         .accessibilityLabel("Sort tasks")
         .accessibilityValue(rules.isEmpty ? "Default order" : "\(rules.count) rules")

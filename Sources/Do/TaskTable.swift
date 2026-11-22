@@ -94,15 +94,27 @@ struct TaskTable: View {
     }
 
     private func progressLabel(_ task: TaskDetails) -> some View {
-        HStack(spacing: Space.xs) {
-            ProgressView(value: Double(task.progress), total: 100)
-                .progressViewStyle(.linear)
-                .accessibilityHidden(true)
-            Text("\(task.progress)%")
+        let progress = min(100, max(0, task.progress))
+        return HStack(spacing: Space.xs) {
+            GeometryReader { track in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(theme.ink.opacity(theme.highContrast ? 0.22 : 0.10))
+                    if progress > 0 {
+                        Capsule().fill(theme.action)
+                            .frame(width: track.size.width * CGFloat(progress) / 100)
+                    }
+                }
+            }
+            .frame(height: 5)
+            .accessibilityHidden(true)
+
+            Text("\(progress)%")
                 .workspaceType(.metadata).monospacedDigit()
                 .foregroundStyle(.secondary)
                 .fixedSize()
+                .frame(minWidth: 32, alignment: .trailing)
                 .layoutPriority(1)
+                .accessibilityLabel("Progress \(progress) percent")
         }
     }
 
