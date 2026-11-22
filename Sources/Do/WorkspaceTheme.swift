@@ -9,7 +9,7 @@ struct WorkspaceTheme {
     var inspector: Color { color(light: 0xFAFAFA, dark: 0x242424) }
     var field: Color { color(light: 0xFFFFFF, dark: 0x1C1C1C) }
     var ink: Color { color(light: 0x171717, dark: 0xF5F5F5) }
-    var muted: Color { color(light: 0x666666, dark: 0xA3A3A3) }
+    var muted: Color { color(light: 0x5F5F5F, dark: 0xB3B3B3) }
     var action: Color { ink }
     var actionInk: Color { color(light: 0xFFFFFF, dark: 0x171717) }
     var focus: Color { color(light: 0x444444, dark: 0xD4D4D4) }
@@ -95,25 +95,27 @@ extension EnvironmentValues {
     }
 }
 
+// Display typography is reserved for page titles and the short sidebar wordmark.
 enum WorkspaceType {
-    case page, panel, section, task, navigation, body, metadata, button
+    case page, wordmark, panel, section, metric, task, navigation, body, label, metadata, button
 
     var size: CGFloat {
         switch self {
-        case .page: 38
-        case .panel: 23
-        case .section: 16
-        case .task, .body: 14
-        case .navigation, .button: 13
-        case .metadata: 12
+        case .page: 42
+        case .metric: 28
+        case .panel, .wordmark: 24
+        case .section: 17
+        case .task: 15
+        case .body: 14
+        case .navigation, .label, .metadata, .button: 13
         }
     }
 
     var weight: Font.Weight {
         switch self {
-        case .page, .body, .metadata: .regular
+        case .page, .wordmark, .body, .metadata: .regular
         case .task, .navigation: .medium
-        case .panel, .section, .button: .semibold
+        case .panel, .section, .metric, .label, .button: .semibold
         }
     }
 }
@@ -132,8 +134,13 @@ private struct WorkspaceTypography: ViewModifier {
     @Environment(\.workspaceTextSize) private var textSize
 
     func body(content: Content) -> some View {
-        content.font(.system(size: role.size * scale * textSize.multiplier, weight: role.weight,
-                             design: role == .page ? headingTypography.design : .default))
+        let size = role.size * scale * textSize.multiplier
+        let design: Font.Design = switch role {
+        case .page: headingTypography.design
+        case .wordmark: .serif
+        default: .default
+        }
+        content.font(.system(size: size, weight: role.weight, design: design))
     }
 }
 
@@ -141,11 +148,12 @@ struct WorkspaceHeading: View {
     let title: String
     let color: Color
     var role: WorkspaceType = .page
+    @Environment(\.headingTypography) private var headingTypography
 
     var body: some View {
         Text(title)
             .workspaceType(role)
-            .tracking(role == .page ? -0.5 : 0)
+            .tracking(role == .page && headingTypography != .monospaced ? -0.6 : 0)
             .foregroundStyle(color)
             .accessibilityAddTraits(.isHeader)
     }

@@ -59,7 +59,7 @@ private struct SummaryMetric: View {
             Text(count, format: .number)
                 .contentTransition(reduceMotion ? .identity : .numericText())
                 .animation(reduceMotion ? nil : WorkspaceMotion.feedback, value: count)
-                .workspaceType(.panel)
+                .workspaceType(.metric)
                 .monospacedDigit()
                 .foregroundStyle(theme.ink)
             Text(title)
@@ -68,7 +68,6 @@ private struct SummaryMetric: View {
                 .fixedSize(horizontal: true, vertical: false)
         }
         .padding(.vertical, Space.xs)
-        .padding(.horizontal, Space.xs)
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(title): \(count)")

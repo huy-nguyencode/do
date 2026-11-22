@@ -84,6 +84,7 @@ struct WorkspaceSettings: View {
                         HStack {
                             Label(name, systemImage: "folder")
                                 .workspaceType(.body)
+                                .fixedSize(horizontal: false, vertical: true)
                             Spacer()
                             Button("Delete…", role: .destructive) { pendingProject = name }
                                 .accessibilityLabel("Delete project \(name)")
@@ -97,6 +98,7 @@ struct WorkspaceSettings: View {
                     WorkspaceHeading(title: "Backups", color: theme.ink, role: .section)
                     Text("Export a copy of your tasks or import tasks from a Do backup.")
                         .workspaceType(.body)
+                        .lineSpacing(Space.xs)
                         .foregroundStyle(theme.muted)
                     HStack(spacing: Space.md) {
                         Button("Export Backup…", action: exportBackup)
@@ -105,6 +107,7 @@ struct WorkspaceSettings: View {
                     }
                 }
             }
+            .workspaceType(.body)
             .frame(maxWidth: 620, alignment: .leading)
             .padding(Space.xl)
             .frame(maxWidth: .infinity, alignment: .leading)

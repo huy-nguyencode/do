@@ -236,13 +236,13 @@ struct WorkspaceView: View {
         return VStack(alignment: .leading, spacing: Space.lg) {
             VStack(alignment: .leading, spacing: Space.md) {
                 Text("Do")
-                    .font(.system(.title, design: .serif))
+                    .workspaceType(.wordmark)
                     .foregroundStyle(theme.ink)
                     .accessibilityHidden(true)
                 sidebarSearch
             }
             .padding(.horizontal, Space.lg)
-            .padding(.top, Space.lg)
+            .padding(.top, Space.xxl)
 
             List(selection: Binding<TaskView?>(get: { showingSettings ? nil : view }, set: { destination in
                 if let destination { changeView(destination) }
@@ -251,7 +251,9 @@ struct WorkspaceView: View {
                     let count = counts[item, default: 0]
                     Label {
                         HStack(spacing: Space.sm) {
-                            Text(item.title).workspaceType(.navigation)
+                            Text(item.title)
+                                .workspaceType(.navigation)
+                                .fixedSize(horizontal: false, vertical: true)
                             Spacer(minLength: Space.xs)
                             if item != .overview && count > 0 {
                                 Text(count, format: .number)
@@ -295,7 +297,7 @@ struct WorkspaceView: View {
                 .accessibilityAddTraits(showingSettings ? .isSelected : [])
                 .help("Settings (⌘,)")
             }
-            .workspaceType(.metadata)
+            .workspaceType(.navigation)
             .foregroundStyle(theme.muted)
             .padding(.horizontal, Space.lg)
             .padding(.bottom, Space.lg)
@@ -352,8 +354,8 @@ struct WorkspaceView: View {
                 }
             }
             .padding(.horizontal, Space.xl)
-            .padding(.top, Space.xl)
-            .padding(.bottom, Space.md)
+            .padding(.top, Space.xxl)
+            .padding(.bottom, Space.lg)
 
             if !tasks.isEmpty {
                 tableControls
@@ -440,7 +442,7 @@ struct WorkspaceView: View {
                             .frame(minHeight: 32)
                     }
                     .buttonStyle(WorkspaceButtonStyle(theme: theme, primary: true))
-                    Text("⌘N").font(.caption.monospaced()).foregroundStyle(.secondary)
+                    Text("⌘N").workspaceType(.metadata).foregroundStyle(theme.muted)
                         .accessibilityLabel("Command N")
                 }
             }

@@ -50,7 +50,7 @@ struct TaskTable: View {
             TaskCompletionButton(task: task, compact: true) { toggle(task) }
             Text(task.title)
                 .workspaceType(.task)
-                .foregroundStyle(task.status == .done ? .secondary : .primary)
+                .foregroundStyle(task.status == .done ? theme.muted : .primary)
                 .lineLimit(1)
                 .help(task.title)
             Spacer(minLength: 0)
@@ -71,7 +71,8 @@ struct TaskTable: View {
                 Text(clock).workspaceType(.metadata).monospacedDigit().lineLimit(1)
             }
         }
-        .foregroundStyle(date.overdue ? .primary : .secondary)
+        .workspaceType(.metadata)
+        .foregroundStyle(date.overdue ? .primary : theme.muted)
         .help(date.fullLabel)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(date.fullLabel)
@@ -81,7 +82,7 @@ struct TaskTable: View {
         Label(task.status.rawValue, systemImage: statusSymbol(task.status))
             .labelStyle(CompactLabelStyle())
             .workspaceType(.metadata)
-            .foregroundStyle(task.status == .todo ? .secondary : .primary)
+            .foregroundStyle(task.status == .todo ? theme.muted : .primary)
             .lineLimit(1)
     }
 
@@ -110,7 +111,7 @@ struct TaskTable: View {
 
             Text("\(progress)%")
                 .workspaceType(.metadata).monospacedDigit()
-                .foregroundStyle(.secondary)
+                .foregroundStyle(theme.muted)
                 .fixedSize()
                 .frame(minWidth: 32, alignment: .trailing)
                 .layoutPriority(1)
@@ -120,8 +121,10 @@ struct TaskTable: View {
 
     private func projectLabel(_ task: TaskDetails) -> some View {
         Text(task.project.isEmpty ? "—" : task.project)
+            .workspaceType(.metadata)
             .lineLimit(1)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(theme.muted)
+            .help(task.project)
     }
 }
 

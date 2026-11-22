@@ -11,7 +11,8 @@ struct TaskEditor: View {
     let save: () -> Void
     let delete: () -> Void
 
-    @Environment(\.dynamicTypeSize) private var textSize
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.workspaceTextSize) private var textSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @EditorState private var enteringProject = false
     @EditorState private var showingProjects = false
@@ -26,7 +27,7 @@ struct TaskEditor: View {
         VStack(spacing: 0) {
             header
                 .padding(.horizontal, Space.xl)
-                .padding(.top, Space.xl)
+                .padding(.top, Space.xxl)
                 .padding(.bottom, Space.lg)
 
             ScrollView {
@@ -187,8 +188,9 @@ struct TaskEditor: View {
     }
 
     private var statusFields: some View {
-        let options = textSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(spacing: 2))
+        let stackOptions = dynamicTypeSize.isAccessibilitySize || textSize == .extraLarge
+        let options = stackOptions
+            ? AnyLayout(VStackLayout(spacing: Space.xs))
             : AnyLayout(HStackLayout(spacing: 2))
         return VStack(alignment: .leading, spacing: Space.sm) {
             fieldLabel("Status")
@@ -224,7 +226,7 @@ struct TaskEditor: View {
                     .monospacedDigit()
                     .multilineTextAlignment(.trailing)
                     .padding(.horizontal, Space.xs)
-                    .frame(width: 44, height: 24)
+                    .frame(minWidth: 44, maxWidth: 50, minHeight: 28)
                     .background(WorkspaceFieldSurface(theme: theme, focused: focus == .progress))
                     .focused($focus, equals: .progress)
                     .onSubmit { progressText = nil }
@@ -268,6 +270,7 @@ struct TaskEditor: View {
             ZStack(alignment: .topLeading) {
                 TextEditor(text: $draft.notes)
                     .workspaceType(.body)
+                    .lineSpacing(Space.xs)
                     .foregroundStyle(theme.ink)
                     .scrollContentBackground(.hidden)
                     .scrollIndicators(.hidden)
@@ -327,7 +330,7 @@ struct TaskEditor: View {
     }
 
     private func fieldLabel(_ title: String) -> some View {
-        Text(title).workspaceType(.navigation).foregroundStyle(theme.ink)
+        Text(title).workspaceType(.label).foregroundStyle(theme.ink)
     }
 
 }

@@ -25,9 +25,10 @@ struct TaskSortControl: View {
         .accessibilityValue(rules.isEmpty ? "Default order" : "\(rules.count) rules")
         .popover(isPresented: $showingRules, arrowEdge: .bottom) {
             VStack(alignment: .leading, spacing: Space.sm) {
-                Text("Sort rules").font(.headline)
+                WorkspaceHeading(title: "Sort rules", color: theme.ink, role: .section)
                 Text("Rules are applied from top to bottom.")
-                    .foregroundStyle(.secondary)
+                    .workspaceType(.metadata)
+                    .foregroundStyle(theme.muted)
                 ForEach(Array(rules.enumerated()), id: \.element.field) { position, rule in
                     ruleRow(rule, position: position)
                 }
